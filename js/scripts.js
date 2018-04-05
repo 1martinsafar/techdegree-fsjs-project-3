@@ -46,6 +46,55 @@ designSelect.addEventListener("change", e => {
   firstMatch.setAttribute("selected", true);
 });
 
+// As a user selects activities, a running total displays
+// below the list of checkboxes
+const activityField = document.querySelector(".activities")
+const activityOptions = document.querySelectorAll(".activities input");
+console.log(activityField);
+console.log(activityOptions);
+
+let total = 0;
+
+activityField.addEventListener("change", e => {
+  const activity = e.target;
+  if (activity.name === "all") {
+    if (activity.checked) {
+      total += 200;
+    } else {
+      total -= 200;
+    }
+  }
+  else {
+    if (activity.checked) {
+      total += 100;
+    } else {
+      total -= 100;
+    }
+  }
+
+  let totalHTML = document.querySelector("span.total");
+  if (totalHTML) {
+    totalHTML.remove();
+  }
+  totalHTML = `<span class="total">${total}</span>`;
+  activityField.insertAdjacentHTML("afterend", totalHTML);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
