@@ -72,6 +72,7 @@ const getDate = () => {
 let total = 0;
 let datesSelected = [];
 let datesDisabled = [];
+let mainConference = false;
 
 /* Activity Checkbox Events
       As a user selects activities, a running total displays
@@ -88,8 +89,10 @@ activityField.addEventListener("change", e => {
   if (activity.name === "all") {
     if (activity.checked) {
       total += 200;
+      mainConference = true;
     } else {
       total -= 200;
+      mainConference = false;
     }
   }
   else {
@@ -154,14 +157,84 @@ activityField.addEventListener("change", e => {
   }
   totalHTML = `<span class="total">total: $${total}</span>`;
   activityField.insertAdjacentHTML("afterend", totalHTML);
+
+  // Validating checkboxes: at least 1
+  let activityCount = datesSelected.length;
+  if (mainConference) {
+    activityCount++;
+  }
+  if (activityCount > 0) {
+    submit.removeAttribute("disabled");
+  } else {
+    submit.setAttribute("disabled", "disabled");
+  }
 });
 
+// Payment Info section
+// Display the credit card by default
+const defaultPayment = document.querySelector("#payment option[value='credit card']");
+const creditInfo = document.querySelector("#credit-card");
+defaultPayment.setAttribute("selected", "true");
+creditInfo.style.display = "block";
 
+// Display the selected payment information, hide the other
+const paymentSelect = document.querySelector("#payment");
+paymentSelect.addEventListener("change", e => {
+  const payment = e.target.value;
+  const creditInfo = document.querySelector("#credit-card");
+  const paypalInfo = document.querySelectorAll("fieldset div p")[0];
+  const bitcoinInfo = document.querySelectorAll("fieldset div p")[1];
 
+  switch (payment) {
+    case "credit card":
+      creditInfo.style.display = "block";
+      paypalInfo.style.display = "none";
+      bitcoinInfo.style.display = "none";
+      break;
+    case "paypal":
+      creditInfo.style.display = "none";
+      paypalInfo.style.display = "block";
+      bitcoinInfo.style.display = "none";
+      break;
+    case "bitcoin":
+      creditInfo.style.display = "none";
+      paypalInfo.style.display = "none";
+      bitcoinInfo.style.display = "block";
+      break;
+    default:
+      creditInfo.style.display = "none";
+      paypalInfo.style.display = "none";
+      bitcoinInfo.style.display = "none";
+  }
+});
 
+// Validation
+const submit = document.querySelector("button[type='submit']");
+const name = document.querySelector("#name");
+const email = document.querySelector("#mail");
+const reEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+// Validating name: filled
+name.setAttribute("required", "true");
 
+// Validating email: correct format, filled
+email.setAttribute("required", "true");
+email.addEventListener("change", e => {
+  const input = e.target.value;
+  const validEmail = reEmail.test(input);
+  if (!validEmail) {
+    submit.setAttribute("disabled", "disabled");
+  } else {
+    submit.removeAttribute("disabled");
+  }
+});
 
+// Validating checkboxes: at least 1
+// 0 on load so disabled submit by default
+const activity = datesSelected.length;
+if (!activity) {
+  submit.setAttribute("disabled", "disabled");
+}
 
 
 
