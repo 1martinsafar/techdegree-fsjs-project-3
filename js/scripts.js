@@ -1,5 +1,72 @@
 "use strict";
 
+/* ======================================================================
+                        Functions
+========================================================================= */
+
+const getDate = () => {
+  let options = document.querySelectorAll(".activities label");
+  options = Array.from(options)
+  options.shift();
+  let dates = [];
+  options.forEach(option => {
+    const str = option.textContent
+    const dayTimeCost = option.textContent.split("—")[1];
+    const dayTime = dayTimeCost.split(",")[0].trim();
+    dates.push({
+      label: option,
+      checkbox: option.firstElementChild,
+      date: dayTime
+    });
+  });
+  return dates;
+};
+
+const limit = (input, max) => {
+  console.log("length:", input.value.length);
+  if (input.value.length > max) {
+    console.log("too long:", input.value);
+    input.value = input.value.substr(0, max);
+    return input.value;
+  }
+};
+
+const validateLength = (length, min) => {
+  if (length < min) {
+    console.log("too short:", length);
+    return false;
+  } else {
+    return true;
+  }
+};
+
+const validateNumber = number => {
+  if (!Number.isInteger(number)) {
+    console.log("not an integer");
+    return false;;
+  } else {
+    return true;
+  }
+};
+
+const validateForm = validForm => {
+  for (const validSection in validForm) {
+    console.log(validForm[validSection]);
+    if (!validForm[validSection]) {
+      console.log("!invalid form section detected");
+      submit.setAttribute("disabled", "disabled");
+      return false;
+    }
+    console.log(">>> all valid <<<");
+    submit.removeAttribute("disabled");
+}
+};
+
+
+/* ======================================================================
+                        Main Code
+========================================================================= */
+
 // Setting focus on the first text field
 const firstTextField = document.querySelector("input[type='text']");
 firstTextField.focus();
@@ -51,28 +118,14 @@ const activityOptions = document.querySelectorAll(".activities input");
 console.log(activityField);
 console.log(activityOptions);
 
-const getDate = () => {
-  let options = document.querySelectorAll(".activities label");
-  options = Array.from(options)
-  options.shift();
-  let dates = [];
-  options.forEach(option => {
-    const str = option.textContent
-    const dayTimeCost = option.textContent.split("—")[1];
-    const dayTime = dayTimeCost.split(",")[0].trim();
-    dates.push({
-      label: option,
-      checkbox: option.firstElementChild,
-      date: dayTime
-    });
-  });
-  return dates;
+// validation status of the form - no need for name, email (auto-html)
+const validForm = {
+  email: false,
+  checkbox: false,
+  cardNumber: false,
+  zip: false,
+  cvv: false
 };
-
-let total = 0;
-let datesSelected = [];
-let datesDisabled = [];
-let mainConference = false;
 
 /* Activity Checkbox Events
       As a user selects activities, a running total displays
@@ -80,6 +133,11 @@ let mainConference = false;
       Disable the dates that collide while
       keeping overlapping ones as a possibility.
 */
+let total = 0;
+let datesSelected = [];
+let datesDisabled = [];
+let mainConference = false;
+
 activityField.addEventListener("change", e => {
   const activity = e.target;
   const str = e.target.parentElement.textContent;
@@ -163,10 +221,15 @@ activityField.addEventListener("change", e => {
   if (mainConference) {
     activityCount++;
   }
+  console.log("ACTIVITY COUNT:", activityCount);
   if (activityCount > 0) {
-    submit.removeAttribute("disabled");
+    validForm.checkbox = true;
+    console.log(validForm);
+    validateForm(validForm);
   } else {
-    submit.setAttribute("disabled", "disabled");
+    validForm.checkbox = false;
+    console.log(validForm);
+    validateForm(validForm);
   }
 });
 
@@ -208,7 +271,9 @@ paymentSelect.addEventListener("change", e => {
   }
 });
 
+//
 // Validation
+//
 const submit = document.querySelector("button[type='submit']");
 const name = document.querySelector("#name");
 const email = document.querySelector("#mail");
@@ -218,31 +283,79 @@ const reEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@(
 name.setAttribute("required", "true");
 
 // Validating email: correct format, filled
-email.setAttribute("required", "true");
-email.addEventListener("change", e => {
+// email.setAttribute("required", "true");
+email.addEventListener("input", e => {
   const input = e.target.value;
   const validEmail = reEmail.test(input);
-  if (!validEmail) {
-    submit.setAttribute("disabled", "disabled");
+  if (validEmail) {
+    validForm.email = true;
   } else {
-    submit.removeAttribute("disabled");
+    validForm.email = false;
   }
+  console.log(validForm);
+  validateForm(validForm);
 });
 
-// Validating checkboxes: at least 1
-// 0 on load so disabled submit by default
-const activity = datesSelected.length;
-if (!activity) {
-  submit.setAttribute("disabled", "disabled");
-}
+// Validating payment
+const cardNumber = document.querySelector("#cc-num");
+const zip = document.querySelector("#zip");
+const cvv = document.querySelector("#cvv");
+
+// Credit card field should only accept a number between 13 and 16 digits
+cardNumber.addEventListener("input", e => {
+  const input = e.target;
+  const max = 16;
+  const min = 13;
+  const number = parseInt(e.target.value);
+  limit(input, max);
+  const length = e.target.value.length;
+
+  if (validateNumber(number) && validateLength(length, min)) {
+    validForm.cardNumber = true;
+  } else {
+    validForm.cardNumber = false;
+  }
+  console.log(validForm);
+  validateForm(validForm);
+});
+// The zipcode field should accept a 5-digit number
+zip.addEventListener("input", e => {
+  const input = e.target;
+  const max = 5;
+  const min = 5;
+  const number = parseInt(e.target.value);
+  limit(input, max);
+  const length = e.target.value.length;
+
+  if (validateNumber(number) && validateLength(length, min)) {
+    validForm.zip = true;
+  } else {
+    validForm.zip = false;
+  }
+  console.log(validForm);
+  validateForm(validForm);
+});
+// The CVV should only accept a number that is exactly 3 digits long
+cvv.addEventListener("input", e => {
+  const input = e.target;
+  const max = 3;
+  const min = 3;
+  const number = parseInt(e.target.value);
+  limit(input, max);;
+  const length = e.target.value.length;
+
+  if (validateNumber(number) && validateLength(length, min)) {
+    validForm.cvv = true;
+  } else {
+    validForm.cvv = false;
+  }
+  console.log(validForm);
+  validateForm(validForm);
+});
 
 
-
-
-
-
-
-
+// validation object with properties: cvv: true, zip: false, etc.
+// and set it to true/false in the event listener
 
 
 
