@@ -65,10 +65,8 @@ const validateForm = validForm => {
 const validateSection = (section, sectionName) => {
   if (!validForm[sectionName]) {
     section.style.border = "2px solid red";
-    // section.style.borderColor = "red";
   } else {
     section.style.border = "2px solid green";
-    // section.style.borderColor = "green";
   }
 };
 
@@ -155,8 +153,6 @@ designSelect.addEventListener("change", e => {
 
 const activityField = document.querySelector(".activities")
 const activityOptions = document.querySelectorAll(".activities input");
-console.log(activityField);
-console.log(activityOptions);
 
 // validation status of the form
 const validForm = {
