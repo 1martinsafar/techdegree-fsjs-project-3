@@ -92,6 +92,11 @@ firstTextField.focus();
 const otherTextField = document.querySelector("#other-title");
 otherTextField.style.display = "none";
 
+// Asking the user to select at least 1 activity by default
+const activityLegend = document.querySelector(".activities legend");
+const missingActivity = "<h2 id='missing-activity' style='color: red;'>Choose at least 1 activity.</h2>";
+activityLegend.insertAdjacentHTML("afterend", missingActivity);
+
 // Showing new text field when "other" job role is selected
 const jobSelect = document.querySelector("#title")
 // NEW: to be visible when JavaScript is disabled, it was added to the HTML
@@ -416,8 +421,6 @@ cvv.addEventListener("input", e => {
   validateSection(cvv, "cvv");
 });
 
-// Hiding the "Color" label and select menu
-// until a T-Shirt design is selected from the "Design" menu
 
 
 
