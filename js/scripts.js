@@ -59,9 +59,26 @@ const validateForm = validForm => {
     }
     console.log(">>> all valid <<<");
     submit.removeAttribute("disabled");
-}
+  }
 };
 
+const validateSection = (section, sectionName) => {
+  if (!validForm[sectionName]) {
+    section.style.border = "2px solid red";
+    // section.style.borderColor = "red";
+  } else {
+    section.style.border = "2px solid green";
+    // section.style.borderColor = "green";
+  }
+};
+
+const changeValidForm = (properties, newValue) => {
+  console.log("___changeValidForm___");
+  properties.forEach(property => {
+    validForm[property] = newValue;
+  });
+  console.log("validForm:", validForm);
+};
 
 /* ======================================================================
                         Main Code
@@ -71,18 +88,21 @@ const validateForm = validForm => {
 const firstTextField = document.querySelector("input[type='text']");
 firstTextField.focus();
 
+// Hidding the other job role field by default
+const otherTextField = document.querySelector("#other-title");
+otherTextField.style.display = "none";
+
 // Showing new text field when "other" job role is selected
 const jobSelect = document.querySelector("#title")
-
+// NEW: to be visible when JavaScript is disabled, it was added to the HTML
+// so now only its display property needs to change
 jobSelect.addEventListener("change", e => {
   const otherTextField = document.querySelector("#other-title");
-  if (otherTextField) {
-    otherTextField.remove();
-  }
-  else if (e.target.value === "other" && !otherTextField) {
-    console.log("Adding the field");
-    const otherTextField = "<input type='text' id='other-title' name='other_job' placeholder='Your Job Role'>";
-    jobSelect.insertAdjacentHTML("afterend", otherTextField);
+  if (e.target.value === "other") {
+    console.log("Displaying the field");
+    otherTextField.style.display = "block";
+  } else {
+    otherTextField.style.display = "none";
   }
 });
 
@@ -118,8 +138,9 @@ const activityOptions = document.querySelectorAll(".activities input");
 console.log(activityField);
 console.log(activityOptions);
 
-// validation status of the form - no need for name, email (auto-html)
+// validation status of the form
 const validForm = {
+  userName: false,
   email: false,
   checkbox: false,
   cardNumber: false,
@@ -222,11 +243,19 @@ activityField.addEventListener("change", e => {
     activityCount++;
   }
   console.log("ACTIVITY COUNT:", activityCount);
+  const activityLegend = document.querySelector(".activities legend");
+  const missingActivity = document.querySelector("#missing-activity");
   if (activityCount > 0) {
+    if (missingActivity) {
+      missingActivity.remove();
+    }
     validForm.checkbox = true;
     console.log(validForm);
     validateForm(validForm);
   } else {
+    console.log(">>> no activities selected!");
+    const missingActivity = "<h2 id='missing-activity' style='color: red;'>Choose at least 1 activity.</h2>";
+    activityLegend.insertAdjacentHTML("afterend", missingActivity);
     validForm.checkbox = false;
     console.log(validForm);
     validateForm(validForm);
@@ -253,21 +282,25 @@ paymentSelect.addEventListener("change", e => {
       creditInfo.style.display = "block";
       paypalInfo.style.display = "none";
       bitcoinInfo.style.display = "none";
+      changeValidForm(["cardNumber", "zip", "cvv"], false);
       break;
     case "paypal":
       creditInfo.style.display = "none";
       paypalInfo.style.display = "block";
       bitcoinInfo.style.display = "none";
+      changeValidForm(["cardNumber", "zip", "cvv"], true);
       break;
     case "bitcoin":
       creditInfo.style.display = "none";
       paypalInfo.style.display = "none";
       bitcoinInfo.style.display = "block";
+      changeValidForm(["cardNumber", "zip", "cvv"], true);
       break;
     default:
       creditInfo.style.display = "none";
       paypalInfo.style.display = "none";
       bitcoinInfo.style.display = "none";
+      changeValidForm(["cardNumber", "zip", "cvv"], false);
   }
 });
 
@@ -275,12 +308,23 @@ paymentSelect.addEventListener("change", e => {
 // Validation
 //
 const submit = document.querySelector("button[type='submit']");
-const name = document.querySelector("#name");
+const userName = document.querySelector("#name");
 const email = document.querySelector("#mail");
 const reEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-// Validating name: filled
-name.setAttribute("required", "true");
+// Validating userName: filled
+userName.setAttribute("required", "true");
+userName.addEventListener("focusout", e => {
+  const input = e.target.value;
+  if (input.length > 0) {
+    validForm.userName = true;
+  } else {
+    validForm.userName = false;
+  }
+  console.log(validForm);
+  validateForm(validForm);
+  validateSection(userName, "userName");
+});
 
 // Validating email: correct format, filled
 // email.setAttribute("required", "true");
@@ -294,6 +338,7 @@ email.addEventListener("input", e => {
   }
   console.log(validForm);
   validateForm(validForm);
+  validateSection(email, "email");
 });
 
 // Validating payment
@@ -317,6 +362,7 @@ cardNumber.addEventListener("input", e => {
   }
   console.log(validForm);
   validateForm(validForm);
+  validateSection(cardNumber, "cardNumber");
 });
 // The zipcode field should accept a 5-digit number
 zip.addEventListener("input", e => {
@@ -334,6 +380,7 @@ zip.addEventListener("input", e => {
   }
   console.log(validForm);
   validateForm(validForm);
+  validateSection(zip, "zip");
 });
 // The CVV should only accept a number that is exactly 3 digits long
 cvv.addEventListener("input", e => {
@@ -351,11 +398,8 @@ cvv.addEventListener("input", e => {
   }
   console.log(validForm);
   validateForm(validForm);
+  validateSection(cvv, "cvv");
 });
-
-
-// validation object with properties: cvv: true, zip: false, etc.
-// and set it to true/false in the event listener
 
 
 
