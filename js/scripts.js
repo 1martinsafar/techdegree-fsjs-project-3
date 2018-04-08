@@ -111,8 +111,23 @@ jobSelect.addEventListener("change", e => {
 const designSelect = document.querySelector("#design")
 const colorOptions = document.querySelectorAll("#color option");
 
+// Hide the color label and select menu by default
+const colorSection = document.querySelector("#colors-js-puns");
+colorSection.style.display = "none";
+
 designSelect.addEventListener("change", e => {
   const theme = e.target.value;
+  // Hiding the "Color" label and select menu
+  // until a T-Shirt design is selected from the "Design" menu
+  if (theme === "Select Theme") {
+    console.log("NOTHING SELECTED");
+    colorSection.style.display = "none";
+    return;
+  } else {
+    colorSection.style.display = "block";
+  }
+
+  // Display the appropriate colors for the selected theme
   let re;
   if (theme === "js puns") {
     re = /JS Puns shirt only/;
@@ -401,7 +416,8 @@ cvv.addEventListener("input", e => {
   validateSection(cvv, "cvv");
 });
 
-
+// Hiding the "Color" label and select menu
+// until a T-Shirt design is selected from the "Design" menu
 
 
 
