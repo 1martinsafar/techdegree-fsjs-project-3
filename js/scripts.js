@@ -55,10 +55,12 @@ const formFunctionality = (() => {
       if (!validForm[validSection]) {
         console.log("!invalid form section detected");
         submit.setAttribute("disabled", "disabled");
+        submit.style.backgroundColor = "darkred";
         return false;
       }
       console.log(">>> all valid <<<");
       submit.removeAttribute("disabled");
+      submit.removeAttribute("style");
     }
   };
 
@@ -326,6 +328,9 @@ const formFunctionality = (() => {
   const userName = document.querySelector("#name");
   const email = document.querySelector("#mail");
   const reEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  // Making the submit button red - disabled by default
+  submit.style.backgroundColor = "darkred";
 
   // Validating userName: filled
   userName.setAttribute("required", "true");
